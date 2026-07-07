@@ -1,0 +1,6 @@
+pyproject.toml
+cdmx_gtfs.egg-info/PKG-INFO
+cdmx_gtfs.egg-info/SOURCES.txt
+cdmx_gtfs.egg-info/dependency_links.txt
+cdmx_gtfs.egg-info/requires.txt
+cdmx_gtfs.egg-info/top_level.txt

@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+rapidfuzz
+networkx
+geopandas
+shapely
+folium
+plotly
+pyarrow
+gtfs-kit
+partridge>=1.1.2

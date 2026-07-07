@@ -1,0 +1,35 @@
+[project]
+name = "cdmx-gtfs"
+version = "0.1.0"
+description = "Ingestion, deduplication, and construction of CDMX's multiplex mobility graph"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "rapidfuzz",
+    "networkx",
+    "geopandas",
+    "shapely",
+    "folium",
+    "plotly",
+    "pyarrow",       # backend parquet
+    "partridge>=1.1.2",
+]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["cdmx_gtfs*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]  # errors, pyflakes, isort, pyupgrade

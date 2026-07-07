@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: cdmx-gtfs
+Version: 0.1.0
+Summary: Ingestion, deduplication, and construction of CDMX's multiplex mobility graph
+Requires-Python: >=3.10
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: scikit-learn
+Requires-Dist: rapidfuzz
+Requires-Dist: networkx
+Requires-Dist: geopandas
+Requires-Dist: shapely
+Requires-Dist: folium
+Requires-Dist: plotly
+Requires-Dist: pyarrow
+Requires-Dist: gtfs-kit
+Requires-Dist: partridge>=1.1.2
