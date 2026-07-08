@@ -44,7 +44,6 @@ B_0400L1-DRPASCUA,merge_into,station_1337_0,Doctores / Dr. Pascua (geo_cluster 1
 B_0400L5-5FEBRERO0,merge_into,station_1380_8,5 de Febrero / Alberto Herrera (geo_cluster 1380) — verificado manualmente
 B_0400L5-EDOMOLINA1,merge_into,station_119_0,San Juan de Aragón / Eduardo Molina (geo_cluster 119) — verificado manualmente
 B_0400L5-EDOMOLINA0,merge_into,station_119_0,San Juan de Aragón / Eduardo Molina (geo_cluster 119) — verificado manualmente
-B_01020C00-CETRAMRAZABAS,merge_into,station_363_2,La Raza / CETRAM La Raza BASE (geo_cluster 363) — verificado manualmente
 B_0501430-CETRAMTASQUE,merge_into,station_925_0,Tasqueña / Cetram Tasqueña Anden B (geo_cluster 925) — verificado manualmente
 B_0400L3-SANTANDER,merge_into,station_1314_0,Insurgentes Sur / Santander (geo_cluster 1314) — verificado manualmente
 B_0400L5-DONIZETTI,merge_into,station_1375_0,Clave / Donizetti (geo_cluster 1375) — verificado manualmente
@@ -69,3 +68,28 @@ B_010C1400-MORELOSPASO,merge_into,station_1101_1,Av. Morelos y Fco. del Paso y T
 B_0200L6-LAVILLA,merge_into,station_1341_2,La Villa y Basílica / Calzada Guadalupe (geo_cluster 1341) — verificado manualmente
 B_0100C600-MPOLIBVENAD,merge_into,station_125_0,Pueblo Sta. Cruz Atoyac / Municipio Libre y Parque de los Venados (geo_cluster 125) — verificado manualmente
 B_05027A0-MOSQLERDO,merge_into,station_353_1,Teatro Blanquita / Mosqueta Eje 1 Norte - Lerdo Lázaro Cardenas y Mina (geo_cluster 353) — verificado manualmente
+B_0300L7-INDIOSVERDES,merge_into,station_1357_0,"Indios Verdes CETRAM -- 240m del Metro, fuera del radio de dedup (Fase 4, componente aislada)"
+B_0501011-MINDIOSVER,merge_into,station_1357_0,Indios Verdes CETRAM -- fuera del radio de dedup (Fase 4)
+B_0300L1-INDIOSVERDES,merge_into,station_1357_0,"Indios Verdes CETRAM -- 166m del Metro, fuera del radio de dedup (Fase 4)"
+B_0800L1-INDIOSVERDE,merge_into,station_1357_0,"Indios Verdes CETRAM (Cablebus) -- 338m del Metro, fuera del radio de dedup (Fase 4)"
+B_0700L1-BUENAVISTA,merge_into,station_354_5,"Buenavista Suburbano -- 422m del CETRAM Buenavista, fuera del radio de dedup (Fase 4)"
+B_0800L2-CONST1917,merge_into,station_26_0,"Constitución de 1917 CETRAM -- 170m, fuera del radio de dedup (Fase 4)"
+B_0400L4-ROSARIO,merge_into,station_1340_0,El Rosario CETRAM -- fuera del radio de dedup (Fase 4)
+B_0300L6-ROSARIO,merge_into,station_1340_0,El Rosario CETRAM -- fuera del radio de dedup (Fase 4)
+B_0300L4-LAZARO0,merge_into,station_112_1,"San Lázaro CETRAM -- extiende merge previo, fuera del radio de dedup (Fase 4)"
+B_0200LB-SANLAZARO,merge_into,station_112_1,"San Lázaro CETRAM -- 290m del resto, fuera del radio de dedup (Fase 4)"
+B_0400L1-TASQUENA,merge_into,station_925_0,"Tasqueña CETRAM -- extiende merge previo, fuera del radio de dedup (Fase 4)"
+B_0400L7-TASQUEÑA,merge_into,station_925_0,"Tasqueña CETRAM -- extiende merge previo, fuera del radio de dedup (Fase 4)"
+B_0200L4-MARTINCARR,merge_into,station_1227_1,"Martín Carrera CETRAM -- extiende merge previo, 401m, fuera del radio de dedup (Fase 4)"
+B_0200L3-LARAZA,merge_into,station_244_0,"La Raza CETRAM -- Túnel de la Ciencia (corredor real largo), fuera del radio de dedup (Fase 4)"
+B_0300L1-LARAZA,merge_into,station_244_0,La Raza CETRAM -- fuera del radio de dedup (Fase 4)
+B_01020C00-CETRAMRAZABAS,merge_into,station_244_0,La Raza CETRAM -- fuera del radio de dedup (Fase 4)
+B_0300L3-RAZA,merge_into,station_244_0,"La Raza CETRAM -- extremo del corredor (532m), fuera del radio de dedup (Fase 4)"
+B_0300L6-DVO18MZO,merge_into,station_1342_0,Deportivo 18 de Marzo CETRAM -- fuera del radio de dedup (Fase 4)
+B_0200L3-DTVO18MARZO,merge_into,station_1342_0,Deportivo 18 de Marzo CETRAM -- fuera del radio de dedup (Fase 4)
+B_0300L1-DVO18MARZO,merge_into,station_1342_0,Deportivo 18 de Marzo CETRAM -- fuera del radio de dedup (Fase 4)
+B_0300L7-CHAPU1,merge_into,station_180_6,"Chapultepec CETRAM -- solo troncales, fuera del radio de dedup (Fase 4)"
+B_0300L7-CHAPU0,merge_into,station_180_6,"Chapultepec CETRAM -- solo troncales, fuera del radio de dedup (Fase 4)"
+B_03SL01-CHAPU,merge_into,station_180_6,"Chapultepec CETRAM -- solo troncales, fuera del radio de dedup (Fase 4)"
+B_03SL01-CHAPUOP,merge_into,station_180_6,"Chapultepec CETRAM -- solo troncales, fuera del radio de dedup (Fase 4)"
+B_0200L8-COYUYA,merge_into,station_1248_1,"Coyuya: Metro Coyuya (MB, 2020) con Coyuya (METRO L8) -- verificado oficialmente adyacente, NO fusionar con station_1462_0 (Coyuya MB original de 2008, 370m, punto distinto verificado)"
