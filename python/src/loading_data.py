@@ -24,8 +24,8 @@ from typing import Callable
 
 import pandas as pd
 import partridge as ptg
+from partridge.gtfs import Feed
 
-Feed = ptg.gtfs.Feed
 CheckResult = tuple[str, bool, str]  # (name, ok, detail)
 
 
@@ -105,16 +105,9 @@ def warn_route_type_consistency(feed: Feed) -> CheckResult:
             f"agencies with mixed types: {mixed.index.tolist()}" if not mixed.empty else "")
 
 
-def warn_calendar_dates_empty(feed: Feed) -> CheckResult:
-    empty = feed.calendar_dates.empty
-    return ("calendar_dates declared", not empty,
-            "empty -> assumed no calendar exceptions" if empty else "")
-
-
 WARNING_CHECKS: list[Callable[[Feed], CheckResult]] = [
     warn_frequency_granularity,
     warn_route_type_consistency,
-    warn_calendar_dates_empty,
 ]
 
 
