@@ -1,14 +1,14 @@
 """
-Fase 2: deduplicación espacial de estaciones.
+Phase 2: spatial deduplication of stations.
 
-Estilo funcional: cada transformación es una función pura que recibe y
-devuelve DataFrames/arrays; sin clases, composición explícita en main().
+Functional style: each transformation is a pure function that takes and
+returns DataFrames/arrays; no classes, explicit composition in main().
 
-Paso 1: clustering geográfico (BallTree haversine + connected components).
-Paso 2: normalización de prefijos administrativos + filtro de nombre
-        (rapidfuzz + connected components) dentro de cada cluster geográfico.
-Paso 3: identificación de candidatos a override manual (clusters que,
-        tras el Paso 2, siguen fragmentados y multi-agencia).
+Step 1: geographic clustering (haversine BallTree + connected components).
+Step 2: administrative prefix normalization + name filter
+        (rapidfuzz + connected components) within each geographic cluster.
+Step 3: identification of manual override candidates (clusters that,
+        after Step 2, remain fragmented and multi-agency).
 """
 
 from __future__ import annotations
@@ -27,14 +27,14 @@ from sklearn.neighbors import BallTree
 EARTH_RADIUS_M = 6_371_000
 RADIUS_M = 150
 NAME_THRESHOLD = 85
-MAX_MERGE_DISTANCE_M = 150  # tope par-a-par, independiente de la cadena del geo_cluster
+MAX_MERGE_DISTANCE_M = 150  # pairwise cap, independent of the geo_cluster chain
 NAME_PREFIXES = [
     "c. c. metro ", "c.c. metro ", "cetram metro ",
     "base metro ", "base cetram ", "mb ", "metro ", "base ", "cetram ",
 ]
 
 
-# ---------- Carga ----------
+# ---------- Loading ----------
 
 def load_stops(path: str) -> pd.DataFrame:
     return pd.read_csv(path)
@@ -42,7 +42,7 @@ def load_stops(path: str) -> pd.DataFrame:
 
 def load_stop_agencies(stops_path: str, routes_path: str, trips_path: str,
                         stop_times_path: str) -> pd.Series:
-    """stop_id -> frozenset(agency_id) que sirve esa parada."""
+    """stop_id -> frozenset(agency_id) serving that stop."""
     routes = pd.read_csv(routes_path)
     trips = pd.read_csv(trips_path)
     stop_times = pd.read_csv(stop_times_path, usecols=["trip_id", "stop_id"])
@@ -52,7 +52,7 @@ def load_stop_agencies(stops_path: str, routes_path: str, trips_path: str,
     return st_agency.groupby("stop_id").agency_id.apply(lambda s: frozenset(s.dropna()))
 
 
-# ---------- Paso 1: clustering geográfico ----------
+# ---------- Step 1: geographic clustering ----------
 
 def _connected_components_from_pairs(rows: np.ndarray, cols: np.ndarray, n: int) -> np.ndarray:
     graph = coo_matrix((np.ones(len(rows), dtype=bool), (rows, cols)), shape=(n, n))
@@ -68,7 +68,7 @@ def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def geographic_clusters(stops: pd.DataFrame, radius_m: float = RADIUS_M) -> np.ndarray:
-    """Cluster geográfico por radio (BallTree haversine + connected components)."""
+    """Radius-based geographic clustering (haversine BallTree + connected components)."""
     coords_rad = np.radians(stops[["stop_lat", "stop_lon"]].values)
     tree = BallTree(coords_rad, metric="haversine")
     neighbors = tree.query_radius(coords_rad, r=radius_m / EARTH_RADIUS_M)
@@ -78,10 +78,10 @@ def geographic_clusters(stops: pd.DataFrame, radius_m: float = RADIUS_M) -> np.n
     return _connected_components_from_pairs(rows, cols, len(stops))
 
 
-# ---------- Paso 2: normalización + filtro de nombre ----------
+# ---------- Step 2: normalization + name filter ----------
 
 def normalize_name(name: str) -> str:
-    """Quitar prefijos administrativos repetidos (Metro, Base, Cetram, ...)."""
+    """Strip repeated administrative prefixes (Metro, Base, Cetram, ...)."""
     n = name.strip().lower()
     stripped = True
     while stripped:
@@ -97,11 +97,11 @@ def name_subclusters(names: list[str], lats: list[float], lons: list[float],
                       threshold: float = NAME_THRESHOLD,
                       max_distance_m: float = MAX_MERGE_DISTANCE_M) -> np.ndarray:
     """
-    Sub-clusteriza un grupo de nombres por similitud tras normalizar,
-    exigiendo además que el par esté a <= max_distance_m entre sí.
-    Sin este tope, dos paradas con el mismo nombre genérico (ej. dos
-    'Boulevard Puerto Aéreo' distintas a 700m) pueden fusionarse por error
-    dentro de un cluster geográfico encadenado.
+    Sub-clusters a group of names by similarity after normalizing,
+    additionally requiring the pair to be <= max_distance_m apart.
+    Without this cap, two stops with the same generic name (e.g. two
+    distinct 'Boulevard Puerto Aéreo' 700m apart) could be merged by
+    mistake within a chained geographic cluster.
     """
     normalized = list(map(normalize_name, names))
     n = len(normalized)
@@ -119,10 +119,10 @@ def name_subclusters(names: list[str], lats: list[float], lons: list[float],
     return _connected_components_from_pairs(rows, cols, n)
 
 
-# ---------- Construcción del crosswalk ----------
+# ---------- Crosswalk construction ----------
 
 def build_crosswalk(stops: pd.DataFrame) -> pd.DataFrame:
-    """stop_id -> station_id combinando Paso 1 (geo) + Paso 2 (nombre)."""
+    """stop_id -> station_id combining Step 1 (geo) + Step 2 (name)."""
     geo_labels = geographic_clusters(stops)
     stops = stops.assign(geo_cluster=geo_labels)
 
@@ -140,13 +140,13 @@ def build_crosswalk(stops: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(parts, ignore_index=True)[["stop_id", "stop_name", "station_id", "geo_cluster"]]
 
 
-# ---------- Paso 3: candidatos a override manual ----------
+# ---------- Step 3: manual override candidates ----------
 
 def override_candidates(crosswalk: pd.DataFrame, stop_agencies: pd.Series) -> pd.DataFrame:
     """
-    geo_cluster que, tras el Paso 2, siguen con >1 station_id Y con más de
-    una agencia involucrada en el cluster completo -> candidatos a revisar
-    a mano (el automático no logró decidir si son la misma estación o no).
+    geo_cluster that, after Step 2, still has >1 station_id AND more than
+    one agency involved in the whole cluster -> candidate for manual review
+    (the automatic pipeline couldn't decide whether they're the same station).
     """
     def cluster_summary(geo_cluster_id: Hashable, group: pd.DataFrame) -> dict | None:
         n_stations = group.station_id.nunique()
@@ -173,14 +173,14 @@ def override_candidates(crosswalk: pd.DataFrame, stop_agencies: pd.Series) -> pd
     return pd.DataFrame(rows).sort_values("n_stops", ascending=False)
 
 
-# ---------- Paso 4: aplicar overrides manuales ----------
+# ---------- Step 4: apply manual overrides ----------
 
 def apply_overrides(crosswalk: pd.DataFrame, overrides_path: str) -> pd.DataFrame:
     """
-    Aplica manual_overrides/station_merge_overrides.csv sobre el crosswalk
-    automático (Paso 1+2). El override siempre gana: si un stop_id aparece
-    en el archivo, su station_id se reemplaza por target_station_id,
-    sin importar lo que haya decidido el clustering automático.
+    Applies manual_overrides/station_merge_overrides.csv on top of the
+    automatic crosswalk (Step 1+2). The override always wins: if a stop_id
+    appears in the file, its station_id is replaced by target_station_id,
+    regardless of what the automatic clustering decided.
     """
     overrides = pd.read_csv(overrides_path)
     override_map = dict(zip(overrides.stop_id, overrides.target_station_id))
@@ -192,7 +192,7 @@ def apply_overrides(crosswalk: pd.DataFrame, overrides_path: str) -> pd.DataFram
     return crosswalk
 
 
-# ---------- Orquestación ----------
+# ---------- Orchestration ----------
 
 def main(stops_path: str, routes_path: str, trips_path: str, stop_times_path: str,
          overrides_path: str, out_crosswalk: str, out_candidates: str) -> None:

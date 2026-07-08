@@ -1,0 +1,71 @@
+stop_id,action,target_station_id,note
+B_0100C900-TACUBAYA,merge_into,station_182_0,Tacubaya / Tacubaya (base) (geo_cluster 182) — verificado manualmente
+B_010C1921-CHAPCUAUHT,merge_into,station_685_8,Cuauhtémoc / Av. Chapultepec - Metro Cuauhtémoc (geo_cluster 685) — verificado manualmente
+B_05034A1-CHAPUCUAUHT,merge_into,station_685_8,Cuauhtémoc / Av. Chapultepec - Metro Cuauhtémoc (geo_cluster 685) — verificado manualmente
+B_05034A0-CHAPUCUAUHTE,merge_into,station_685_8,Cuauhtémoc / Av. Chapultepec - Metro Cuauhtémoc (geo_cluster 685) — verificado manualmente
+B_0200L1-MERCED,merge_into,station_5_13,La Merced / Merced (geo_cluster 5) — verificado manualmente
+B_0200L2-VILLADECORT,merge_into,station_561_1,Villa de Cortés / Tlalpan - Metro Villa de Cortes (geo_cluster 561) — verificado manualmente
+B_0400L9-VILLACORTES,merge_into,station_561_1,Villa de Cortés / Tlalpan - Metro Villa de Cortes (geo_cluster 561) — verificado manualmente
+B_0100Z120-CTRALDELNTE,merge_into,station_245_0,Autobuses del Norte / Central del Norte (geo_cluster 245) — verificado manualmente
+B_0400L1-CTRALNTE,merge_into,station_245_0,Autobuses del Norte / Central del Norte (geo_cluster 245) — verificado manualmente
+B_0300L5-SANLAZARO1,merge_into,station_112_1,San Lázaro / San Lázaro Sur (geo_cluster 112) — verificado manualmente
+B_0300L5-SANLAZARO,merge_into,station_112_1,San Lázaro / San Lázaro Norte (geo_cluster 112) — verificado manualmente
+B_0300L4-LAZARO1,merge_into,station_112_1,San Lázaro / San Lázaro Norte (geo_cluster 112) — verificado manualmente
+B_0300L4-PINOSRZSR,merge_into,station_4_8,Pino Suárez / Pino Suárez Sur (geo_cluster 4) — verificado manualmente
+B_CONGE1-TERMINALPTO,merge_into,station_150_2,Boulevard Puerto Aéreo / Terminal Puerto Aéreo (geo_cluster 150) — verificado manualmente
+B_010Z4J01-METRAERO,merge_into,station_150_2,Boulevard Puerto Aéreo / Base Metro Aeropuerto (geo_cluster 150) — verificado manualmente
+B_01022D00-AV5ESCUA201,merge_into,station_147_0,Metro Escuadrón 201 / Av. 5 y Escuadron 201 (geo_cluster 147) — verificado manualmente
+B_010Z3F00-TLAHESTR0,merge_into,station_1308_0,Lomas Estrella / Av. Tláhuac - Metro Lomas Estrella (geo_cluster 1308) — verificado manualmente
+B_010Z3H01-TLAHESTR1,merge_into,station_1308_0,Lomas Estrella / Av. Tláhuac - Metro Lomas Estrella (geo_cluster 1308) — verificado manualmente
+B_0400L5-FLORESMAGON,merge_into,station_1372_0,Glorieta Cuitláhuac / Flores Magón (geo_cluster 1372) — verificado manualmente
+B_0400L5-BASILIORO,merge_into,station_1377_0,Excélsior / Basilio Romo Anguiano (geo_cluster 1377) — verificado manualmente
+B_0100Z120-DONCELES,merge_into,station_352_2,Donceles / Bellas Artes (geo_cluster 352) — verificado manualmente
+B_010Z3H01-TLAH11MANT,merge_into,station_1307_0,Calle 11 / Av. Tláhuac - Metro Calle 11. Mantenimiento (geo_cluster 1307) — verificado manualmente
+B_0400L5-LERDO,merge_into,station_1371_0,Glorieta Violeta / Lerdo (geo_cluster 1371) — verificado manualmente
+B_0400L4-CVALLEJO1,merge_into,station_743_9,C. Vallejo / Vallejo (geo_cluster 743) — verificado manualmente
+B_0400L8-POLIOTE,merge_into,station_307_6,Politécnico Oriente / Frente a Metro Politécnico (geo_cluster 307) — verificado manualmente
+B_05034B0-UNIMAQ,merge_into,station_1349_0,Miguel Ángel de Quevedo / Av. Universidad - Metro Miguel Ángel de Quevedo (geo_cluster 1349) — verificado manualmente
+B_05052C0-STAMRTA,merge_into,station_1329_0,Santa Marta / C. C. Metro Santa Marta - Cetram Santa Marta Anden A (geo_cluster 1329) — verificado manualmente
+B_010Z3F00-TLAHSNAND0,merge_into,station_1309_0,San Andrés Tomatlán / Av. Tláhuac - Metro San Andrés Tomatlán (geo_cluster 1309) — verificado manualmente
+B_010Z3H01-TLAHSNAND1,merge_into,station_1309_0,San Andrés Tomatlán / Av. Tláhuac - Metro San Andrés Tomatlán (geo_cluster 1309) — verificado manualmente
+B_0501030-AVMONTEVIDEO,merge_into,station_367_6,Av. Montevideo / Montevideo (geo_cluster 367) — verificado manualmente
+B_0400L5-TLATELOLC,merge_into,station_1373_0,Tres Culturas / Tlatelolco (geo_cluster 1373) — verificado manualmente
+B_0300L1-ALVAROOBRE,merge_into,station_1074_0,Álvaro Obregón e Insurgentes / Álvaro Obregón (geo_cluster 1074) — verificado manualmente
+B_0500230-METRORAZA,merge_into,station_244_2,Eje Central - Metro La Raza / Frente a Metro La Raza (geo_cluster 244) — verificado manualmente
+B_0200L1-INSURGENTES,merge_into,station_1363_1,Insurgentes / Glorieta Insurgentes (geo_cluster 1363) — verificado manualmente
+B_0501040-AVINSURNTE2,merge_into,station_829_0,Potrero / Av. Insurgentes Norte 2 (geo_cluster 829) — verificado manualmente
+B_0501030-FMETROINSTP,merge_into,station_246_0,Instituto del Petróleo / Frente a Metro Instituto del Petróleo (geo_cluster 246) — verificado manualmente
+B_05011A0-CALZGPE,merge_into,station_746_7,Calz. Guadalupe / Calzada de Guadalupe (geo_cluster 746) — verificado manualmente
+B_0400L5-MONTEVIDEO,merge_into,station_1394_0,La Villa / Montevideo (geo_cluster 1394) — verificado manualmente
+B_0500191-ROSARIOANDEN,merge_into,station_1340_0,El Rosario / Metro el Rosario Anden A (geo_cluster 1340) — verificado manualmente
+B_0100C500-MCARRERA,merge_into,station_1227_1,Martín Carrera (base) / Martín Carrera (geo_cluster 1227) — verificado manualmente
+B_0400L5-HDELAVILLA,merge_into,station_1393_0,Hospital General La Villa / Hospital de la Villa (geo_cluster 1393) — verificado manualmente
+B_0400L1-DRPASCUA,merge_into,station_1337_0,Doctores / Dr. Pascua (geo_cluster 1337) — verificado manualmente
+B_0400L5-5FEBRERO0,merge_into,station_1380_8,5 de Febrero / Alberto Herrera (geo_cluster 1380) — verificado manualmente
+B_0400L5-EDOMOLINA1,merge_into,station_119_0,San Juan de Aragón / Eduardo Molina (geo_cluster 119) — verificado manualmente
+B_0400L5-EDOMOLINA0,merge_into,station_119_0,San Juan de Aragón / Eduardo Molina (geo_cluster 119) — verificado manualmente
+B_01020C00-CETRAMRAZABAS,merge_into,station_363_2,La Raza / CETRAM La Raza BASE (geo_cluster 363) — verificado manualmente
+B_0501430-CETRAMTASQUE,merge_into,station_925_0,Tasqueña / Cetram Tasqueña Anden B (geo_cluster 925) — verificado manualmente
+B_0400L3-SANTANDER,merge_into,station_1314_0,Insurgentes Sur / Santander (geo_cluster 1314) — verificado manualmente
+B_0400L5-DONIZETTI,merge_into,station_1375_0,Clave / Donizetti (geo_cluster 1375) — verificado manualmente
+B_010C1401-COYUYAPLU,merge_into,station_1248_1,Coyuya y Plutarco Elias / Metro Coyuya (geo_cluster 1248) — verificado manualmente
+B_0800L3-PINOSCONST,merge_into,station_1338_0,Constituyentes / Los Pinos Constituyentes (geo_cluster 1338) — verificado manualmente
+B_010241-IZAZGCATO,merge_into,station_701_0,Eje 1A Sur José María Izazaga - Isabel la Católica / Sobre J. M. Izazaga e Isabel la Católica (geo_cluster 701) — verificado manualmente
+B_0400L4-AVAZCAPOTZ,merge_into,station_943_1,Manuel Acuña y Av. Azcapotzalco / Av. Azcapotzalco (geo_cluster 943) — verificado manualmente
+B_05059A1-VIA16SEPT,merge_into,station_1339_3,16 de Septiembre / Parque Vía - 16 de Septiembre (geo_cluster 1339) — verificado manualmente
+B_05101A0-ALBARDON,merge_into,station_1382_2,Prol. Misterios - Albardon / Albardon (geo_cluster 1382) — verificado manualmente
+B_0400L5-RICARTE,merge_into,station_779_0,Ricarte - Calz. de los Misterios / Ricarte (geo_cluster 779) — verificado manualmente
+B_010Z4C01-VICCORON,merge_into,station_1379_1,Victoria / Av. Victoria Ote. y C. La Corona (geo_cluster 1379) — verificado manualmente
+B_010C1001-MOSQUGUERR,merge_into,station_468_3,Mosqueta y Guerrero / Guerrero (geo_cluster 468) — verificado manualmente
+B_05101A1-CANTERA,merge_into,station_1381_3,Cantera - Hidalgo / Cantera (geo_cluster 1381) — verificado manualmente
+B_010C1901-CASOMADRID,merge_into,station_346_2,Antonio Caso / Maestro Antonio Caso - Madrid (geo_cluster 346) — verificado manualmente
+B_0300L3-ETIOPIA,merge_into,station_1354_0,Etiopía y Plaza de la Transparencia / Etiopía (geo_cluster 1354) — verificado manualmente
+B_010C1900-LOGINREGORM,merge_into,station_712_2,Villalogín - Reforma / Reforma (geo_cluster 712) — verificado manualmente
+B_0400L5-CANALNTE,merge_into,station_956_0,Av. Canal del Norte y Jesús Carranza / Canal del Norte (geo_cluster 956) — verificado manualmente
+B_010Z4C00-EXCCALMISTE,merge_into,station_1378_0,Excélsior / Excelsior y Calz. de los Misterios (geo_cluster 1378) — verificado manualmente
+B_0100C900-VIADUCTOPTA5,merge_into,station_1095_1,Viaducto y Puerta 5 / Ciudad Deportiva (geo_cluster 1095) — verificado manualmente
+B_0100C900-AVMLOSFCOTR,merge_into,station_1101_1,Av. Morelos y Fco. del Paso y Troncoso / Mixiuhca (geo_cluster 1101) — verificado manualmente
+B_010C1400-MORELOSPASO,merge_into,station_1101_1,Av. Morelos y Fco. del Paso y Troncoso / Mixiuhca (geo_cluster 1101) — verificado manualmente
+B_0200L6-LAVILLA,merge_into,station_1341_2,La Villa y Basílica / Calzada Guadalupe (geo_cluster 1341) — verificado manualmente
+B_0100C600-MPOLIBVENAD,merge_into,station_125_0,Pueblo Sta. Cruz Atoyac / Municipio Libre y Parque de los Venados (geo_cluster 125) — verificado manualmente
+B_05027A0-MOSQLERDO,merge_into,station_353_1,Teatro Blanquita / Mosqueta Eje 1 Norte - Lerdo Lázaro Cardenas y Mina (geo_cluster 353) — verificado manualmente
