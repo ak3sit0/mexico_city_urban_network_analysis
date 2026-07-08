@@ -1,1 +1,29 @@
-/data/
+# GTFS input data (large, not version-controlled)
+data/raw/
+data/interim/
+
+# Generated outputs (large, can be regenerated)
+data/processed/*.parquet
+data/processed/transfer_matrix.csv
+figures/
+
+# Python runtime
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

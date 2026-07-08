@@ -73,22 +73,33 @@ cada uno).*
 
 Matriz de transbordos agencia×agencia. No iniciado.
 
-### Paso 4 — ⏳ Pendiente
+### Paso 4 — ✅ Completado
 
-Mapa interactivo con `folium`. No iniciado — depende de tener la lista
-de nodos de transbordo del Paso 3 para resaltarlos bien.
+Mapa interactivo con `folium`. Ejecutado: `python/src/paso_4_interactive_map.py`.
+
+**Hallazgos:**
+- 8,722 nodos distribuidos por 10 agencias (incluida INTERURBANO, no
+  anticipada en inicialmente en conteo de 9).
+- **481 estaciones de transbordo** (station_id con >=2 agencies) — puntos
+  grandes con borde destacado en el mapa.
+- Mapa centrado en CDMX, zoom 11, visualmente coherente: METRO en corredores
+  centrales, RTP disperso en periferia, INTERURBANO en bordes, CC/MB en
+  cobertura urbana.
+- Salida: `figures/interactive_map.html` (interactivo, zoomeable, con popups
+  por nodo mostrando station_id/agency_id/stop_name).
 
 ---
 
 ## Dónde vive esto
 
-- `graph_stats.py` — Paso 1 (ya escrito y corrido).
+- `visualization.py` — Paso 1 (ya escrito).
+- `paso_1_visualizations.py` — Paso 1 con gráficas (4 PNGs generadas).
 - Paso 2 se resolvió con exploración directa + ediciones a
   `manual_overrides/station_merge_overrides.csv` + re-corridas de
-  `dedup.py`/`build_graph.py`/`validate_graph.py` — no generó un
-  script propio nuevo.
-- Paso 3 y 4 — sin archivo todavía. `figures/` sigue sin crearse (se
-  crea recién cuando el Paso 4 genere el primer mapa exportado).
+  `deduplication.py`/`build_graph.py` — no generó un script propio nuevo.
+- `paso_3_transfer_matrix.py` — Paso 3 (matriz agencia×agencia, exporta CSV).
+- `paso_4_interactive_map.py` — Paso 4 (mapa folium interactivo).
+- `figures/` creado y poblado: 4 PNGs (estadísticas) + 1 HTML (mapa interactivo).
 
 ## Próximo paso sugerido
 

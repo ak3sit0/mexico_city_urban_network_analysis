@@ -11,9 +11,9 @@ Suburbano, Tren Interurbano) built from GTFS data, to study:
    graph (Fronczak & Fronczak; Noh & Rieger), using service frequency as
    a proxy for capacity/flow.
 
-This README covers the **first part**: ingestion, spatial deduplication of
-stations, and construction of the multiplex graph. The simulation phases
-(cascades, random walk) remain on the roadmap.
+This README covers the **Phase 0–4 completion**: ingestion, spatial
+deduplication of stations, multiplex graph construction, and exploratory
+validation. The simulation phases (cascades, random walk) are Phase 5–6.
 
 ---
 
@@ -40,14 +40,19 @@ cdmx-transit-resilience/
 │   ├── raw/                    # original GTFS (gitignored)
 │   ├── interim/                # validated/cleaned tables
 │   └── processed/              # nodes.parquet, edges.parquet (final graph)
+├── manual_overrides/
+│   └── station_merge_overrides.csv  # Manual corrections for ~11 CETRAMs
 ├── python/
 │   ├── pyproject.toml
 │   ├── src/
 │   │   ├── __init__.py
-│   │   ├── loading_data.py      # Phase 1: load + schema validation
-│   │   ├── deduplication.py     # Phase 2: spatial deduplication of stations
-│   │   ├── build_graph.py       # Phase 3: multiplex graph construction
-│   │   └── visualization.py     # Phase 4: validation maps and plots
+│   │   ├── loading_data.py           # Phase 1: GTFS load + schema validation
+│   │   ├── deduplication.py          # Phase 2: spatial dedup + manual overrides
+│   │   ├── build_graph.py            # Phase 3: multiplex graph + transfer edges
+│   │   ├── visualization.py          # Phase 4 Paso 1: statistics (console)
+│   │   ├── paso_1_visualizations.py  # Phase 4 Paso 1: statistics (plots)
+│   │   ├── paso_3_transfer_matrix.py # Phase 4 Paso 3: agency×agency heatmap
+│   │   └── paso_4_interactive_map.py # Phase 4 Paso 4: folium map
 │   └── notebooks/
 │       ├── 01_exploration.ipynb
 │       ├── 02_dedup_qc.ipynb
@@ -69,13 +74,13 @@ cdmx-transit-resilience/
 
 ## Roadmap / Phases
 
-- [ ] **Phase 0** — Environment setup (Python + Julia)
-- [ ] **Phase 1** — GTFS ingestion and schema validation
-- [ ] **Phase 2** — Spatial deduplication of stations (+ manual overrides)
-- [ ] **Phase 3** — Multiplex graph construction (L-space per layer/agency)
-- [ ] **Phase 4** — Validation and visualization
-- [ ] **Phase 5** *(future)* — Cascading failure simulation (Julia)
-- [ ] **Phase 6** *(future)* — Biased random walk / peak-hour flow (Julia)
+- [x] **Phase 0** — Environment setup (Python + Julia)
+- [x] **Phase 1** — GTFS ingestion and schema validation (6/6 blocking checks pass)
+- [x] **Phase 2** — Spatial deduplication of stations (8,374 unique station_id from 11,362 stops; 94 manual overrides for CETRAMs)
+- [x] **Phase 3** — Multiplex graph construction (8,722 nodes, 23,790 edges: 22,550 service + 1,240 transfer)
+- [x] **Phase 4** — Validation and visualization (4 pasos: statistics, connected components, transfer matrix, interactive map)
+- [ ] **Phase 5** *(roadmap)* — Cascading failure simulation (Julia)
+- [ ] **Phase 6** *(roadmap)* — Biased random walk / peak-hour flow (Julia)
 
 ---
 
@@ -99,6 +104,28 @@ friction.
 
 ---
 
+## Key findings (Phase 4 analysis)
+
+**Network topology:**
+- **481 transfer stations** (≥2 agencies at same location) — 5.5% of all stations
+- **3 connected components** (down from 5 after manual deduplication):
+  - Giant component: 99.8% of network
+  - Isolated: Santa Fe feeder route (RTP), Tren Interurbano (geographic distance)
+- **Strongest inter-agency connections:** CC ↔ RTP (302 transfer edges), RTP ↔ TROLE (59)
+
+**Frequency hierarchy (by agency):**
+- **METRO:** 3 min median (most frequent)
+- **MB/CBB/SUB:** ~5 min
+- **TROLE:** 6 min
+- **PUMABUS:** 8 min
+- **RTP:** 30 min median (long tail to 85 min)
+
+**Service degree distribution:**
+- Median ~4 across most agencies; **TROLE 2** (terminal-heavy)
+- Transfer degree: median 0 (transfers concentrated at ~481 hubs)
+
+---
+
 ## Known limitations
 
 - There is no real passenger demand (OD) data; service frequency
@@ -106,28 +133,83 @@ friction.
 - Only ~31% of trips distinguish a peak/off-peak window in
   `frequencies.txt`; the rest report a flat headway all day. The
   peak-vs-off-peak bias is only empirically grounded for that subset.
-- Automatic spatial deduplication (distance + name) can fail for large
-  transfer stations with widely separated platforms (e.g. Pantitlán,
-  Chabacano) — requires manual review via explicit overrides (see
-  `apply_manual_overrides` in `deduplication.py`).
+- Automatic spatial deduplication (150m radius + name similarity) fails
+  for large, dispersed stations (platforms >150m apart). Mitigated by
+  manual overrides in `manual_overrides/station_merge_overrides.csv`
+  (~11 CETRAMs corrected).
+
+---
+
+## Visualizations and outputs
+
+All figures and data exports are generated in the `figures/` and `data/processed/`
+directories. Phase 4 (validation) generates:
+
+**Statistical charts** (`figures/`):
+- `degree_distribution_by_agency.png` — Service degree histograms per agency
+  (median marked). Reveals hub nodes (high degree) vs. peripheral networks.
+- `headway_by_agency.png` — Box plots of service frequency (headway in seconds).
+  Direct comparison of temporal network structure: METRO (3 min typical) vs.
+  RTP (30–85 min).
+- `edge_count_by_agency.png` — Stacked bar: service vs. transfer edges per agency.
+  Shows internal coverage vs. inter-agency connectivity balance.
+- `travel_time_distribution.png` — Histograms: service edge times (2–5 min) vs.
+  transfer edge times (walking, mostly <3 min).
+
+**Interactive map** (`figures/interactive_map.html`):
+- 8,722 nodes colored by agency (10 agencies, 9-color palette).
+- Transfer stations (≥2 agencies) highlighted with larger circles, thicker borders.
+- Popups: `station_id`, `agency_id`, `stop_name`.
+- Centered on CDMX (centroid of network), zoom 11.
+
+**Data exports** (`data/processed/`):
+- `nodes.parquet` — 8,722 rows: station_id, agency_id, lat, lon, stop_name.
+- `edges.parquet` — 23,790 rows: source, target, edge_type, avg_travel_time_s,
+  route_id, headway_secs, trip_count, distance_m (for transfer edges).
+- `transfer_matrix.csv` — 10×10 matrix: transfer edge counts between agency pairs.
 
 ---
 
 ## How to reproduce
 
+**Setup:**
 ```bash
-# Python
-cd python && uv sync
-
-# Julia
-cd julia && julia --project=. -e 'using Pkg; Pkg.instantiate()'
-
-# Tests
-cd python && uv run pytest ../tests
-
-# Lint
-cd python && uv run ruff check . && uv run ruff format --check .
+cd python && uv sync  # Python environment + dependencies
+cd julia && julia --project=. -e 'using Pkg; Pkg.instantiate()'  # Julia
 ```
+
+**Run pipeline (Phases 1–4):**
+```bash
+cd python
+
+# Phase 1: GTFS validation
+python src/loading_data.py ../data/raw/gtfs.zip
+
+# Phase 2: Spatial deduplication
+python src/deduplication.py
+
+# Phase 3: Build multiplex graph
+python src/build_graph.py
+
+# Phase 4: Validation and visualization
+python src/visualization.py                  # Console statistics
+python src/paso_1_visualizations.py          # PNG charts
+python src/paso_3_transfer_matrix.py         # Transfer heatmap (CSV)
+python src/paso_4_interactive_map.py         # Interactive folium map (HTML)
+```
+
+**Tests and linting:**
+```bash
+cd python
+uv run pytest ../tests
+uv run ruff check . && uv run ruff format --check .
+```
+
+**Outputs:**
+- `data/processed/nodes.parquet` — Node table (8,722 rows)
+- `data/processed/edges.parquet` — Edge table (23,790 rows)
+- `data/processed/transfer_matrix.csv` — Agency×agency heatmap
+- `figures/` — PNG charts + interactive HTML map
 
 ---
 
