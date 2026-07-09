@@ -146,13 +146,18 @@ All figures and data exports are generated in the `figures/` and `data/processed
 directories. Phase 4 (validation) generates:
 
 **Statistical charts** (`figures/`):
+
+### Network Composition by Agency
+![Edge count by agency](figures/edge_count_by_agency.png)
+*Service edges (blue) vs. transfer edges (coral) per agency. METRO and CC dominate internal coverage; RTP has largest transfer presence.*
+
+### Service Frequency Hierarchy
+![Headway by agency](figures/headway_by_agency.png)
+*Distribution of service frequencies (headway in seconds) across agencies. METRO: 3 min median (most frequent). RTP: 30–85 min (peripheral coverage). Direct visual of the temporal network structure.*
+
+**Additional charts** (generated but not shown):
 - `degree_distribution_by_agency.png` — Service degree histograms per agency
   (median marked). Reveals hub nodes (high degree) vs. peripheral networks.
-- `headway_by_agency.png` — Box plots of service frequency (headway in seconds).
-  Direct comparison of temporal network structure: METRO (3 min typical) vs.
-  RTP (30–85 min).
-- `edge_count_by_agency.png` — Stacked bar: service vs. transfer edges per agency.
-  Shows internal coverage vs. inter-agency connectivity balance.
 - `travel_time_distribution.png` — Histograms: service edge times (2–5 min) vs.
   transfer edge times (walking, mostly <3 min).
 

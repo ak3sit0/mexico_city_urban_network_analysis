@@ -5,7 +5,8 @@ data/interim/
 # Generated outputs (large, can be regenerated)
 data/processed/*.parquet
 data/processed/transfer_matrix.csv
-figures/
+figures/*.html
+figures/*.jpg
 
 # Python runtime
 __pycache__/
