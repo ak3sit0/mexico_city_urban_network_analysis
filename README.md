@@ -49,10 +49,7 @@ cdmx-transit-resilience/
 │   │   ├── loading_data.py           # Phase 1: GTFS load + schema validation
 │   │   ├── deduplication.py          # Phase 2: spatial dedup + manual overrides
 │   │   ├── build_graph.py            # Phase 3: multiplex graph + transfer edges
-│   │   ├── visualization.py          # Phase 4 Paso 1: statistics (console)
-│   │   ├── paso_1_visualizations.py  # Phase 4 Paso 1: statistics (plots)
-│   │   ├── paso_3_transfer_matrix.py # Phase 4 Paso 3: agency×agency heatmap
-│   │   └── paso_4_interactive_map.py # Phase 4 Paso 4: folium map
+│   │   └── phase_4_analysis.py       # Phase 4: statistics, charts, transfer matrix, interactive map
 │   └── notebooks/
 │       ├── 01_exploration.ipynb
 │       ├── 02_dedup_qc.ipynb
@@ -196,11 +193,10 @@ python src/deduplication.py
 # Phase 3: Build multiplex graph
 python src/build_graph.py
 
-# Phase 4: Validation and visualization
-python src/visualization.py                  # Console statistics
-python src/paso_1_visualizations.py          # PNG charts
-python src/paso_3_transfer_matrix.py         # Transfer heatmap (CSV)
-python src/paso_4_interactive_map.py         # Interactive folium map (HTML)
+# Phase 4: Validation and visualization (run all steps or subset)
+python src/phase_4_analysis.py                    # All: console stats, PNG charts, transfer matrix, map
+python src/phase_4_analysis.py --steps 1          # Console stats only
+python src/phase_4_analysis.py --steps 1,3        # Stats + transfer matrix (no map)
 ```
 
 **Tests and linting:**

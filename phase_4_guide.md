@@ -69,13 +69,21 @@ oficiales sin revisar (se cubrieron los que aparecían como componentes
 aisladas o en la lista oficial de 36, pero no se agotó exhaustivamente
 cada uno).*
 
-### Paso 3 — ⏳ Pendiente
+### Paso 3 — ✅ Completado
 
-Matriz de transbordos agencia×agencia. No iniciado.
+Matriz de transbordos agencia×agencia. Ejecutado como parte de
+`phase_4_analysis.py`.
+
+**Hallazgos:**
+- 1,240 aristas de transbordo (transbordo) en total
+- Matriz 9×9 (agencias en la matriz de transbordo; INTERURBANO tiene 0 transferencias)
+- **CC ↔ RTP: 302 edges** (conexión dominante)
+- **RTP ↔ TROLE: 59 edges** (segunda conexión más fuerte)
+- PUMABUS: solo 1 arista de transbordo (aislado de red)
 
 ### Paso 4 — ✅ Completado
 
-Mapa interactivo con `folium`. Ejecutado: `python/src/paso_4_interactive_map.py`.
+Mapa interactivo con `folium`. Ejecutado como parte de `phase_4_analysis.py`.
 
 **Hallazgos:**
 - 8,722 nodos distribuidos por 10 agencias (incluida INTERURBANO, no
@@ -92,17 +100,24 @@ Mapa interactivo con `folium`. Ejecutado: `python/src/paso_4_interactive_map.py`
 
 ## Dónde vive esto
 
-- `visualization.py` — Paso 1 (ya escrito).
-- `paso_1_visualizations.py` — Paso 1 con gráficas (4 PNGs generadas).
+- `phase_4_analysis.py` — Módulo consolidado que contiene todos los pasos:
+  - Paso 1: estadísticas por consola + 4 gráficas PNG (degree distribution, headway, edge count, travel time)
+  - Paso 3: matriz agencia×agencia, exporta CSV
+  - Paso 4: mapa folium interactivo (HTML)
 - Paso 2 se resolvió con exploración directa + ediciones a
   `manual_overrides/station_merge_overrides.csv` + re-corridas de
-  `deduplication.py`/`build_graph.py` — no generó un script propio nuevo.
-- `paso_3_transfer_matrix.py` — Paso 3 (matriz agencia×agencia, exporta CSV).
-- `paso_4_interactive_map.py` — Paso 4 (mapa folium interactivo).
-- `figures/` creado y poblado: 4 PNGs (estadísticas) + 1 HTML (mapa interactivo).
+  `deduplication.py`/`build_graph.py` — no generó un script propio.
+- `figures/` poblado con: 4 PNGs (estadísticas) + 1 HTML (mapa interactivo)
 
-## Próximo paso sugerido
+## Ejecución
 
-Paso 3 (matriz de transbordos agencia×agencia) — es rápido de calcular
-con lo que ya existe en `edges.parquet` (`edge_type == "transbordo"`),
-y su resultado alimenta directamente el Paso 4.
+```bash
+cd python
+# Ejecutar todos los pasos (Paso 1 + Paso 3 + Paso 4)
+python src/phase_4_analysis.py
+
+# O ejecutar pasos específicos
+python src/phase_4_analysis.py --steps 1        # Solo gráficas y estadísticas
+python src/phase_4_analysis.py --steps 3        # Solo matriz de transbordos
+python src/phase_4_analysis.py --steps 1,3      # Pasos 1 y 3, sin mapa
+```
