@@ -1,16 +1,24 @@
 """
-    load_multiplex(processed_dir::AbstractString) -> MetaGraph
+    load_nodes_edges(processed_dir::AbstractString)
 
-Loads nodes.parquet and edges.parquet (exported by
-python/src/build_graph.py) and builds a multiplex MetaGraph using
-MetaGraphsNext.jl.
+Load nodes.parquet and edges.parquet (exported by python/src/build_graph.py)
+and return as DataFrames.
 
-Expected columns in edges.parquet: source, target, layer, weight,
-route_id, agency_id.
+Returns:
+    (nodes_df, edges_df)
+
+Expected columns in edges.parquet: source, target, edge_type, agency_id,
+headway_secs, avg_travel_time_s (all critical for Fase 5).
 """
 
-# TODO: use Arrow.jl or Parquet.jl to read nodes/edges,
-# build a Graphs.jl SimpleDiGraph + metadata via MetaGraphsNext.
-function load_multiplex(processed_dir::AbstractString)
-    error("not implemented — Phase 3 must export nodes/edges.parquet first")
+using Arrow, DataFrames
+
+function load_nodes_edges(processed_dir::AbstractString)
+    nodes_path = joinpath(processed_dir, "nodes.parquet")
+    edges_path = joinpath(processed_dir, "edges.parquet")
+
+    nodes = Arrow.Table(nodes_path) |> DataFrame
+    edges = Arrow.Table(edges_path) |> DataFrame
+
+    return nodes, edges
 end

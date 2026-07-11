@@ -178,7 +178,42 @@ circulación (frecuencia). Ambas son complementarias, no competitivas.
 
 **Salida:** `python/data/processed/load_topological.csv` (8,722 nodos)
 
-**Variante B (de flujo) — comparte trabajo con Fase 6, hacerla en Julia:**
+**Variante B (de flujo) — ✅ COMPLETADA (Python, no Julia):**
+
+Calcula la distribución estacionaria de un random walk sesgado por frecuencia.
+L_i_flujo representa el tiempo promedio que un pasajero "pasa" en cada nodo
+(si elige rutas aleatoriamente con probabilidad ∝ frecuencia).
+
+**Fuente:** `python/src/load_flujo.py`
+
+**Implementación:**
+- Matriz de transición P[i,j] sesgada por headway (frecuencia de vehículos)
+- Damping factor (α=0.85, estilo PageRank) para convergencia en grafo desconectado
+- Power iteration: π → π * P hasta convergencia (94 iteraciones)
+- Exporta `node_id, L_i_flujo`
+
+**Hallazgos:**
+- **Top 10: RTP y CC dominan** (no METRO) — estructura periférica
+- Pantitlán (METRO): L_i_flujo = 0.000197 (rank 510/8722)
+- Indios Verdes (METRO): L_i_flujo = 0.000068 (rank 7652/8722)
+- Todos los 8,722 nodos tienen L_i_flujo > 0 (damping elimina aislamiento)
+
+**Contraste con Variante A (betweenness):**
+- Ambas ponen RTP arriba (topológicamente crítico + alto flujo)
+- METRO es importante por capacidad (C_i, Paso 1), no por topología/flujo
+- Las tres métricas (C_i, L_i_topo, L_i_flujo) son complementarias
+
+**Salida:** `python/data/processed/load_flujo.csv` (8,722 nodos)
+
+---
+
+**Original Julia plan (descartado por problemas de dependencias):**
+
+(El plan original pedía hacerlo en Julia, pero Arrow.jl tuvo conflictos de UUID.
+La versión Python es equivalente, más robusta, y ya está lista. Julia se 
+reserva para Pasos 3-6 si es necesario.)
+
+**Variante B (de flujo) — comparte trabajo con Fase 6, hacerla en Julia (future):**
 1. Esta es la matriz de transición sesgada `P_ij ∝ w_ij^β` que también
    necesita Fase 6 — no la dupliques en Python y Julia por separado.
 2. Crear `julia/src/random_walk.jl` (el archivo ya está en el roadmap
@@ -278,9 +313,9 @@ validar Fase 2/4.
 - Fase 4: ✅ consolidada y sin regresión (commit `c1d9fff`)
 - Fase 5, Paso 0: ✅ tabla de capacidad por vehículo (commits `2595a17`, `2310508`)
 - Fase 5, Paso 1: ✅ capacidad por nodo `C_i` (commit `5457b94`)
-- Fase 5, Paso 2 Variante A: ✅ carga topológica `L_i_topo` (betweenness, Python)
-- Fase 5, Paso 2 Variante B: ⏳ siguiente (carga de flujo `L_i_flujo`, Julia)
-- Fase 5, Pasos 3-6: ⏳ pendiente (cascadas + barrido, Julia)
+- Fase 5, Paso 2 Variante A: ✅ carga topológica `L_i_topo` (betweenness, commit `70d008f`)
+- Fase 5, Paso 2 Variante B: ✅ carga de flujo `L_i_flujo` (random walk + damping, Python)
+- Fase 5, Pasos 3-6: ⏳ pendiente (cascadas + barrido, Python o Julia)
 
 ## Próximo paso sugerido
 
