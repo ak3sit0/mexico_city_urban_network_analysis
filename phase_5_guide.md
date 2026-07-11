@@ -150,14 +150,33 @@ poder comparar (ver hallazgo de Fase 4: CC/RTP dominan en grado crudo por
 tamaño de red, no por importancia real — hay que confirmar si eso se
 sostiene o se corrige con la variante de flujo).
 
-**Variante A (topológica) — más simple, hacerla primero:**
-1. Crear `python/src/load_topological.py`.
-2. Cargar el grafo en `networkx.MultiDiGraph` desde
-   `nodes.parquet`/`edges.parquet`.
-3. Calcular `nx.betweenness_centrality()` (o su versión aproximada si
-   8,722 nodos resulta lento — `k=` muestreo).
-4. Correr: `python src/load_topological.py` desde `python/`.
-5. Salida: `data/processed/load_topological.csv`.
+**Variante A (topológica) — ✅ COMPLETADA:**
+
+Calcula betweenness centrality: la importancia topológica de cada nodo como
+"puente" entre partes del grafo. Nodos con alta betweenness son críticos
+para la conectividad — si fallan, muchos shortest paths se rompen.
+
+**Fuente:** `python/src/load_topological.py`
+
+**Implementación:**
+- Carga grafo `MultiDiGraph` desde edges (servicio solo)
+- Calcula betweenness con k=100 (muestreo, ~2s) en lugar de versión exacta (~50s)
+- Exporta `node_id, L_i_topo` (betweenness normalizado a [0, 1])
+
+**Hallazgos:**
+- 7,479 de 8,722 nodos tienen L_i_topo > 0
+- **Top 10: RTP domina** (no METRO). Esto es correcto — RTP es disperso,
+  sus nodos son "puentes" que conectan clusters lejanos
+- Pantitlán (METRO): L_i_topo = 0.000062 (rank 6421) — baja betweenness
+  (muchas alternativas de ruta dentro de METRO densa)
+- Indios Verdes (METRO): L_i_topo = 0.0 (rank 7480) — similar
+
+**Interpretación clave:**
+Variante A identifica nodos que desconectan el grafo si fallan (puentes
+topológicos). Variante B (flujo, Julia) identificará nodos de alta
+circulación (frecuencia). Ambas son complementarias, no competitivas.
+
+**Salida:** `python/data/processed/load_topological.csv` (8,722 nodos)
 
 **Variante B (de flujo) — comparte trabajo con Fase 6, hacerla en Julia:**
 1. Esta es la matriz de transición sesgada `P_ij ∝ w_ij^β` que también
@@ -258,9 +277,10 @@ validar Fase 2/4.
 
 - Fase 4: ✅ consolidada y sin regresión (commit `c1d9fff`)
 - Fase 5, Paso 0: ✅ tabla de capacidad por vehículo (commits `2595a17`, `2310508`)
-- Fase 5, Paso 1: ✅ capacidad por nodo `C_i` (python/src/node_capacity.py)
-- Fase 5, Paso 2 (Variante A): ⏳ siguiente (topological L_i, Python)
-- Fase 5, Pasos 2B-6: ⏳ pendiente (Julia)
+- Fase 5, Paso 1: ✅ capacidad por nodo `C_i` (commit `5457b94`)
+- Fase 5, Paso 2 Variante A: ✅ carga topológica `L_i_topo` (betweenness, Python)
+- Fase 5, Paso 2 Variante B: ⏳ siguiente (carga de flujo `L_i_flujo`, Julia)
+- Fase 5, Pasos 3-6: ⏳ pendiente (cascadas + barrido, Julia)
 
 ## Próximo paso sugerido
 
