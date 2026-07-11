@@ -113,31 +113,35 @@ uv run python src/capacity_assumptions.py
 # Salida: data/processed/capacity_assumptions.csv
 ```
 
-### Paso 1 — Capacidad por nodo (`C_i`)
+### Paso 1 — ✅ Capacidad por nodo (`C_i`) (COMPLETADO)
 
-**Qué hace:** `C_i = Σ (rutas por nodo i) (3600 / headway_secs) ×
-capacidad_por_vehículo(agencia)`.
+**Qué hace:** Calcula el throughput máximo de pasajeros que cada nodo puede
+mover, agregando sobre sus aristas de servicio salientes.
 
-**Cómo ejecutarlo:**
-1. Crear `python/src/node_capacity.py`.
-2. Cargar `data/processed/edges.parquet` (aristas de servicio) y
-   `data/processed/capacity_assumptions.csv` (Paso 0).
-3. Agrupar aristas de servicio por nodo origen, sumar
-   `(3600/headway_secs) * capacidad_pax` por cada arista saliente.
-4. **Caso a decidir explícitamente, no ignorar:** nodos con
-   `headway_secs` nulo (rutas sin `frequencies.txt`, ya documentado desde
-   Fase 1) — ¿se excluyen del análisis o se les asigna un valor por
-   defecto? Documentar la decisión en el mismo script, como comentario
-   visible, no como default silencioso.
-5. Correr:
-   ```bash
-   cd python
-   python src/node_capacity.py
-   ```
-6. **Salida esperada:** `data/processed/node_capacity.csv` (`node_id,
-   C_i`). **Verificación:** cruzar 2-3 nodos conocidos (Pantitlán,
-   Indios Verdes) y confirmar que su `C_i` es alto — si no, algo está mal
-   en el join agencia/headway antes de seguir.
+**Fórmula:**
+```
+C_i = Σ_{aristas de servicio salientes de i} (3600 / headway_secs) × capacidad_pax_por_vehículo(agencia)
+```
+
+**Fuente de datos:** `python/src/node_capacity.py`
+
+**Hallazgos:**
+- 8,676 de 8,722 nodos tienen `C_i > 0` (46 nodos sin aristas salientes son transbordo-only)
+- **Min:** 56 pax/hora (nodos periféricos, baja frecuencia)
+- **Max:** 130,000 pax/hora (hub METRO: station_1023_2)
+- **Media:** 2,674 pax/hora
+- **Top 10:** Dominado por METRO (coherente con jerarquía de frecuencia Fase 4)
+
+**Spot-checks (verificación de dominio):** ✅
+- Pantitlán (station_27_0|METRO): 91,000 pax/hora ✓ (alto, como esperado)
+- Indios Verdes (station_1357_0|METRO): 26,000 pax/hora ✓ (alto, menor, sensato)
+
+**Nota técnica:** El único edge case explícitamente considerado fue nodos con
+`headway_secs` nulo — **NO HAY NINGUNO** en los 22,550 edges de servicio,
+así que no aplica (Fase 1 ya validó que todos tienen `frequencies.txt`).
+
+**Salida:** `python/data/processed/node_capacity.csv` (8,677 filas: 8,676
+nodos + header, columnas `node_id, C_i`).
 
 ### Paso 2 — Carga inicial (`L_i`) — dos variantes
 
@@ -252,11 +256,11 @@ validar Fase 2/4.
 
 ## Estado actual
 
-- Fase 4 consolidada y sin regresión (commit `c1d9fff`).
-- Fase 5, Paso 0: investigación de capacidades completada (TL, SUB,
-  INTERURBANO, PUMABUS), falta reconciliar con la tabla borrador
-  existente en `phase_5_guide.md` y escribir `capacity_assumptions.py`.
-- Pasos 1-6: no iniciados.
+- Fase 4: ✅ consolidada y sin regresión (commit `c1d9fff`)
+- Fase 5, Paso 0: ✅ tabla de capacidad por vehículo (commits `2595a17`, `2310508`)
+- Fase 5, Paso 1: ✅ capacidad por nodo `C_i` (python/src/node_capacity.py)
+- Fase 5, Paso 2 (Variante A): ⏳ siguiente (topological L_i, Python)
+- Fase 5, Pasos 2B-6: ⏳ pendiente (Julia)
 
 ## Próximo paso sugerido
 
