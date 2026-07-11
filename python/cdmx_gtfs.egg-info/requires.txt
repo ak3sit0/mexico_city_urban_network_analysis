@@ -8,5 +8,4 @@ shapely
 folium
 plotly
 pyarrow
-gtfs-kit
 partridge>=1.1.2

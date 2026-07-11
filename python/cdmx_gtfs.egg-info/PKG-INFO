@@ -13,5 +13,4 @@ Requires-Dist: shapely
 Requires-Dist: folium
 Requires-Dist: plotly
 Requires-Dist: pyarrow
-Requires-Dist: gtfs-kit
 Requires-Dist: partridge>=1.1.2
