@@ -1,0 +1,11 @@
+agency_id,capacity_per_vehicle,note
+CBB,10,"Cablelift cabins, 10 pax each. Verified from operational specs."
+CC,80,Standard rapid bus (autobús articulado). Typical urban rapid transit capacity.
+INTERURBANO,719,"Official: Tren México-Toluca 'El Insurgente' (CAF Civity, 5-car), 326 seats + standing room. High confidence."
+MB,160,Standard articulated bus (BRT). High confidence.
+METRO,1300,"Mix across lines: 6-car trains ~1,130 pax, 9-car trains ~1,500 pax. Value 1,300 is representative of fleet average. Medium confidence (simplified single value)."
+PUMABUS,40,"UNAM shuttle bus, estimated ~40 pax. No official fleet data found — weakest assumption in table. Low confidence."
+RTP,80,"Rapid transit bus. Same as CC, 80 pax."
+SUB,1130,"Tren Suburbano official capacity for Buenavista-Cuautitlán line (4-car trains, 1,130 pax). AIFA extension uses different fleet but GTFS groups under SUB. High confidence for original line."
+TL,400,"Tren Ligero Xochimilco: mixed fleet in transition (old units 374 pax, CRRC intermediate 292 pax, new 'El Ajolote' 750 pax with 17 units entering service 2026). Value 400 is representative of current mixed fleet. Will become obsolete as new fleet dominates. Medium confidence."
+TROLE,90,Standard trolleybus (trolebús urbano). Typical urban rapid transit capacity.

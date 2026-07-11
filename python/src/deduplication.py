@@ -175,14 +175,33 @@ def override_candidates(crosswalk: pd.DataFrame, stop_agencies: pd.Series) -> pd
 
 # ---------- Step 4: apply manual overrides ----------
 
-def apply_overrides(crosswalk: pd.DataFrame, overrides_path: str) -> pd.DataFrame:
+def apply_overrides(crosswalk: pd.DataFrame, overrides_path: str | Path) -> pd.DataFrame:
     """
-    Applies manual_overrides/station_merge_overrides.csv on top of the
-    automatic crosswalk (Step 1+2). The override always wins: if a stop_id
-    appears in the file, its station_id is replaced by target_station_id,
+    Apply manual_overrides/station_merge_overrides.csv on top of the
+    automatic crosswalk. The override always wins: if a stop_id appears
+    in the file, its station_id is replaced by target_station_id,
     regardless of what the automatic clustering decided.
+
+    Blocking: if the same stop_id appears more than once with DIFFERENT
+    target_station_id, that's a real contradiction between manual
+    decisions -- this stops instead of silently resolving it by keeping
+    the last row (which is what a plain dict(zip(...)) would do without
+    any warning).
     """
     overrides = pd.read_csv(overrides_path)
+
+    conflicting = (
+        overrides.groupby("stop_id").target_station_id.nunique()
+        .pipe(lambda s: s[s > 1])
+    )
+    if not conflicting.empty:
+        detail = overrides[overrides.stop_id.isin(conflicting.index)].sort_values("stop_id")
+        raise ValueError(
+            f"{len(conflicting)} stop_id con >1 target_station_id distinto en "
+            f"{overrides_path} -- decisiones manuales contradictorias, resolver antes "
+            f"de continuar:\n{detail[['stop_id','target_station_id','note']].to_string(index=False)}"
+        )
+
     override_map = dict(zip(overrides.stop_id, overrides.target_station_id))
 
     crosswalk = crosswalk.copy()
@@ -190,7 +209,6 @@ def apply_overrides(crosswalk: pd.DataFrame, overrides_path: str) -> pd.DataFram
         lambda row: override_map.get(row.stop_id, row.station_id), axis=1
     )
     return crosswalk
-
 
 # ---------- Orchestration ----------
 

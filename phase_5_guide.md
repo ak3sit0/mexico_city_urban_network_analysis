@@ -1,150 +1,267 @@
-# Fase 5 — Guía de planeación
+# Fase 5 — Guía de planeación (actualizada)
 
-## Objetivo
+## Checklist previa — verificar antes de saltar a Fase 5
 
-Estudiar resiliencia dinámica y propagación de cascadas de fallos sobre
-el grafo multiplex ya construido (Fase 3), usando el modelo
-carga-capacidad tipo Motter & Lai (2002), con acoplamiento inter-capa
-ya resuelto estructuralmente por las aristas de transbordo de Fase 3
-(no hace falta un modelo de interdependencia aparte tipo Buldyrev —
-ya está codificado como aristas reales en el grafo).
+La Fase 4 se consolidó (4 scripts sueltos → `phase_4_analysis.py`, commit
+`c1d9fff`) y los nombres de script cambiaron respecto a las fases
+anteriores. Antes de construir sobre esto, vale la pena confirmar lo
+siguiente — no asumirlo porque "ya se hizo antes":
 
-## Prerrequisitos que ya tenemos
-
-- Grafo multiplex completo: `data/processed/nodes.parquet` /
-  `edges.parquet` (8,722 nodos, 23,790 aristas).
-- `headway_secs` por arista de servicio — insumo directo para capacidad.
-- Estadísticas de Fase 4 (Paso 1) ya cuantifican la jerarquía de
-  frecuencia por agencia — punto de partida para calibrar supuestos.
-- **Advertencia metodológica confirmada en Fase 4**: el grado crudo
-  (conteo de aristas) está sesgado hacia las capas más grandes (CC,
-  RTP) por su densidad espacial, no por importancia real de transporte.
-  Fase 5 NO debe usar grado/betweenness topológico puro como proxy de
-  carga sin corregir por esto — ver Paso 2.
+- [x] **Rutas relativas al script, no al cwd.** ✅ `phase_4_analysis.py` usa
+  rutas relativas `../data/processed/...`. Scripts ejecutan sin errores desde
+  `python/`. Verificado: `deduplication.py` completa con 8,374 stations.
+- [x] **El chequeo bloqueante de overrides duplicados sigue presente.** ✅
+  `apply_overrides()` en `deduplication.py` (líneas 193-203) detecta y lanza
+  `ValueError` si un `stop_id` tiene >1 `target_station_id` distinto.
+  Verificado: corre sin errores.
+- [x] **`KNOWN_GAPS` (SEMOVI) — reemplazo.** `validate_graph.py` nunca existió.
+  Se crea `capacity_assumptions.py` como "lugar de verdad" para supuestos
+  documentados en Fase 5, mismo espíritu (constante explícita, visible).
+- [x] **No-regresión de números tras la consolidación** — ✅ confirmado:
+  8,722 nodos / 23,790 aristas / 1,240 transbordo / 481 hubs idénticos.
+- [x] **`tests/test_dedup.py` y `test_graph_integrity.py`.** Stubs vacíos con
+  `TODO` — sin contenido real. No hay red de seguridad automática, solo
+  verificación manual. Aceptable para avanzar a Fase 5.
+- [x] **Empaquetado Python.** `pyproject.toml` tiene `[tool.setuptools.packages.find]
+  include = ["cdmx_gtfs*"]` (legacy), pero layout es `python/src/` con scripts
+  sueltos. `uv run` + `uv sync` funcionan sin fricción. Scripts invocan con
+  rutas relativas, no como paquete. Aceptable.
+- [x] **`transfer_matrix.csv` verificada.** ✅ Matriz 10×10, CC↔RTP: 302 ✓,
+  RTP↔TROLE: 59 ✓. Valores reproducibles desde CSV.
+- [x] **Commit `c1d9fff` sin referencias huérfanas.** ✅ README apunta a
+  `phase_4_analysis.py`. Ningún notebook ni docs referencia a los 4 scripts
+  eliminados. Clean.
 
 ---
 
-## Pasos
+## Estructura real del repositorio (actualizada)
 
-### Paso 0 — Tabla de capacidad por vehículo (supuesto documentado)
+```
+cdmx-transit-resilience/
+├── README.md
+├── .gitignore
+├── data/
+│   ├── raw/
+│   ├── interim/
+│   └── processed/
+│       ├── nodes.parquet
+│       ├── edges.parquet
+│       ├── transfer_matrix.csv          # nuevo (Fase 4)
+│       └── capacity_assumptions.csv     # nuevo (Fase 5, Paso 0 — pendiente)
+├── manual_overrides/
+│   └── station_merge_overrides.csv
+├── python/
+│   ├── pyproject.toml
+│   ├── src/
+│   │   ├── loading_data.py          # Fase 1
+│   │   ├── deduplication.py         # Fase 2
+│   │   ├── build_graph.py           # Fase 3
+│   │   ├── phase_4_analysis.py      # Fase 4 (consolidado, --steps)
+│   │   └── capacity_assumptions.py  # Fase 5, Paso 0 (pendiente de crear)
+│   └── notebooks/
+├── julia/
+│   ├── Project.toml
+│   ├── Manifest.toml
+│   └── src/
+│       ├── graph_load.jl
+│       ├── cascade.jl               # Fase 5 (pendiente)
+│       └── random_walk.jl           # Fase 6 (pendiente)
+├── figures/
+└── tests/
+    ├── test_dedup.py                # stub, sin contenido real
+    └── test_graph_integrity.py      # stub, sin contenido real
+```
 
-No es un dato medido, es una asunción explícita que hay que fijar antes
-de calcular nada. Un valor razonable por agencia (pasajeros/vehículo):
+---
 
-| Agencia | Capacidad aprox./vehículo |
-|---|---|
-| METRO | ~1,200–1,500 (tren completo) |
-| MB (Metrobús articulado) | ~160 |
-| TROLE | ~90 |
-| CBB (Cablebús) | ~10 (por cabina) |
-| RTP / CC | ~80 |
-| TL, SUB, INTERURBANO | por definir (revisar composición real del tren) |
+## Fase 5 — Cómo ejecutar cada paso
 
-Este supuesto debe quedar registrado en el mismo lugar que
-`KNOWN_GAPS` de `validate_graph.py` — es información que cualquiera que
-use los resultados después necesita ver, no algo que se pierda en un
-comentario de código.
+### Paso 0 — ✅ Tabla de capacidad por vehículo (COMPLETADO)
+
+**Qué hace:** Documenta, como archivo versionado, el supuesto de
+pasajeros/vehículo por agencia. Insumo directo del Paso 1 (cálculo de
+capacidad por nodo `C_i`).
+
+**Fuente de datos:** `python/src/capacity_assumptions.py`
+
+Tabla final (10 agencias, todos investigadas):
+
+| Agencia | Capacidad (pax/vehículo) | Confianza / Fuente |
+|---|---|---|
+| **CBB** | 10 | Oficial: cabinas de teleférico |
+| **CC** | 80 | Estándar: autobús rápido urbano |
+| **INTERURBANO** | 719 | **Alta:** Tren México-Toluca "El Insurgente" (CAF Civity, 5 vagones, 326 asientos + pie) |
+| **MB** | 160 | **Alta:** Autobús articulado estándar |
+| **METRO** | 1,300 | **Media:** Representativo entre líneas 6 y 9 vagones (6: 1,130; 9: 1,500) |
+| **PUMABUS** | 40 | **Baja:** Estimación sin dato oficial de flota UNAM |
+| **RTP** | 80 | Estándar: autobús rápido urbano (mismo que CC) |
+| **SUB** | 1,130 | **Alta:** Tren Suburbano oficial (Buenavista-Cuautitlán, 4 vagones) |
+| **TL** | 400 | **Media:** Flota mixta en transición (viejas 374, CRRC 292, nuevas 750 entrando 2026) |
+| **TROLE** | 90 | Estándar: trolebús urbano |
+
+**Archivo de referencia:** `python/src/capacity_assumptions.py`
+- Constante `CAPACITY_PER_VEHICLE`: dict con 10 agencias
+- Constante `CAPACITY_NOTES`: documentación por agencia (fuente, confianza)
+- Constante `METHODOLOGY_CAVEATS`: supuestos generales que aplican a toda la tabla
+- Función `export_csv()`: exporta a `data/processed/capacity_assumptions.csv`
+- Función `main()`: imprime tabla + caveats, exporta CSV
+
+**Verificación:** ✅ 10/10 agencias, match perfecto con `nodes.parquet`
+```bash
+cd python
+uv run python src/capacity_assumptions.py
+# Salida: data/processed/capacity_assumptions.csv
+```
 
 ### Paso 1 — Capacidad por nodo (`C_i`)
 
-```
-C_i = Σ (rutas que pasan por i) (3600 / headway_secs) × capacidad_por_vehículo(agencia)
-```
+**Qué hace:** `C_i = Σ (rutas por nodo i) (3600 / headway_secs) ×
+capacidad_por_vehículo(agencia)`.
 
-Directo desde `edges.parquet` (aristas de servicio, agrupadas por
-nodo). Nodos sin `headway_secs` conocido (rutas sin `frequencies.txt`,
-documentado desde Fase 1) quedan con `C_i` indeterminado — decidir
-explícitamente si se excluyen del análisis o se les asigna un valor por
-defecto documentado, no una imputación silenciosa.
+**Cómo ejecutarlo:**
+1. Crear `python/src/node_capacity.py`.
+2. Cargar `data/processed/edges.parquet` (aristas de servicio) y
+   `data/processed/capacity_assumptions.csv` (Paso 0).
+3. Agrupar aristas de servicio por nodo origen, sumar
+   `(3600/headway_secs) * capacidad_pax` por cada arista saliente.
+4. **Caso a decidir explícitamente, no ignorar:** nodos con
+   `headway_secs` nulo (rutas sin `frequencies.txt`, ya documentado desde
+   Fase 1) — ¿se excluyen del análisis o se les asigna un valor por
+   defecto? Documentar la decisión en el mismo script, como comentario
+   visible, no como default silencioso.
+5. Correr:
+   ```bash
+   cd python
+   python src/node_capacity.py
+   ```
+6. **Salida esperada:** `data/processed/node_capacity.csv` (`node_id,
+   C_i`). **Verificación:** cruzar 2-3 nodos conocidos (Pantitlán,
+   Indios Verdes) y confirmar que su `C_i` es alto — si no, algo está mal
+   en el join agencia/headway antes de seguir.
 
-### Paso 2 — Carga inicial (`L_i`) — dos variantes, no una
+### Paso 2 — Carga inicial (`L_i`) — dos variantes
 
-**Variante A — topológica (betweenness clásico):** referencia de
-comparación, rápida de calcular, pero ya sabemos que sobre-representa
-CC/RTP por su densidad.
+**Qué hace:** calcula la carga de cada nodo de dos formas distintas, para
+poder comparar (ver hallazgo de Fase 4: CC/RTP dominan en grado crudo por
+tamaño de red, no por importancia real — hay que confirmar si eso se
+sostiene o se corrige con la variante de flujo).
 
-**Variante B — de flujo (random-walk betweenness, Newman 2005):**
-requiere la matriz de transición sesgada `P_ij ∝ w_ij^β` con `w_ij` =
-frecuencia de servicio — que es la **misma pieza que necesita Fase 6**
-(caminata aleatoria sesgada). Construir esto una vez, usarlo en ambas
-fases. La distribución estacionaria `π_i` de esta caminata, escalada,
-es `L_i` de flujo.
+**Variante A (topológica) — más simple, hacerla primero:**
+1. Crear `python/src/load_topological.py`.
+2. Cargar el grafo en `networkx.MultiDiGraph` desde
+   `nodes.parquet`/`edges.parquet`.
+3. Calcular `nx.betweenness_centrality()` (o su versión aproximada si
+   8,722 nodos resulta lento — `k=` muestreo).
+4. Correr: `python src/load_topological.py` desde `python/`.
+5. Salida: `data/processed/load_topological.csv`.
 
-**El objetivo explícito de tener ambas variantes:** correr la cascada
-con cada una y comparar si el ranking de nodos críticos cambia. Dado el
-sesgo CC/RTP confirmado en Fase 4, es probable que sí cambie — ese
-contraste es en sí mismo un resultado, no un paso intermedio a
-descartar.
+**Variante B (de flujo) — comparte trabajo con Fase 6, hacerla en Julia:**
+1. Esta es la matriz de transición sesgada `P_ij ∝ w_ij^β` que también
+   necesita Fase 6 — no la dupliques en Python y Julia por separado.
+2. Crear `julia/src/random_walk.jl` (el archivo ya está en el roadmap
+   para Fase 6, pero su primera mitad — construir `P_ij` y calcular la
+   distribución estacionaria `π_i` — es exactamente lo que Fase 5
+   necesita aquí).
+3. Cargar `nodes.parquet`/`edges.parquet` con `graph_load.jl`.
+4. Calcular `π_i` (distribución estacionaria) — random-walk betweenness.
+5. Exportar `data/processed/load_flujo.csv` desde Julia (`CSV.jl` o
+   `Arrow.jl`).
+6. Correr desde `julia/`:
+   ```bash
+   cd julia
+   julia --project=. src/random_walk.jl
+   ```
+
+**Verificación de ambas variantes antes de seguir:** comparar el ranking
+top-10 de nodos por `L_i` entre variante A y B. Si Pantitlán/Indios
+Verdes no aparecen arriba en la variante B, revisar antes de confiar en
+el resultado — es la misma intuición de dominio que ya usamos para
+validar Fase 2/4.
 
 ### Paso 3 — Regla de cascada (Motter-Lai)
 
-- `C_i = (1 + α) · L_i`, con `α` como parámetro de tolerancia a barrer
-  (ver Paso 5).
-- Al fallar un nodo, su carga se redistribuye a vecinos proporcional al
-  peso de la arista hacia cada uno.
-- Si `L_j > C_j` en algún vecino tras la redistribución, ese nodo
-  también falla — cascada iterativa hasta que nadie más supere su
-  capacidad.
-- Nodos de transbordo (edge_type=`transbordo`) participan en la
-  redistribución igual que los de servicio — son el mecanismo real de
-  propagación inter-capa.
+**Cómo ejecutarlo:**
+1. Crear `julia/src/cascade.jl` (Julia desde aquí en adelante — Monte
+   Carlo pesado, ver sección de stack más abajo).
+2. Cargar grafo + `C_i` (Paso 1) + `L_i` (Paso 2, ambas variantes).
+3. Implementar función `run_cascade(graph, C, L, α, seed_failure)` que:
+   - fija `C_i = (1+α) * L_i`,
+   - falla el nodo `seed_failure`,
+   - redistribuye su carga a vecinos (peso = peso de arista saliente),
+   - itera mientras algún nodo tenga `L_j > C_j`,
+   - devuelve el conjunto final de nodos fallidos.
+4. Probar con un solo `α` y un solo nodo semilla primero (ej. Pantitlán)
+   antes de correr el barrido completo del Paso 5 — confirmar que la
+   cascada converge (termina) y no entra en loop infinito.
 
 ### Paso 4 — Métricas de salida
 
-- **Tamaño de componente gigante** `S(t)/S(0)` — señal más directa de
-  colapso tipo percolación (caída abrupta, no gradual).
-- **Eficiencia global** `E = promedio(1/d_ij)` sobre pares alcanzables
-  — más sensible a degradación parcial que `S(t)`.
-- **Flujo varado** — fracción de `π_i` (masa de la caminata, Paso 2B)
-  atrapada en nodos fallidos o desconectados. La métrica más
-  interpretable para "¿el sistema absorbió la falla o colapsó?".
-- **Tamaño de cascada** — nodos/aristas fallidos como fracción del
-  total, al terminar la propagación.
+**Cómo ejecutarlo:**
+1. Agregar a `cascade.jl` (o un archivo separado `metrics.jl`) funciones
+   para, dado el grafo post-cascada:
+   - `giant_component_ratio(graph_before, graph_after)`,
+   - `global_efficiency(graph_after)`,
+   - `flujo_varado(π, nodos_fallidos)` (usa la `π_i` del Paso 2B),
+   - `cascade_size(nodos_fallidos, total_nodos)`.
+2. Cada corrida de `run_cascade()` (Paso 3) debe devolver estas 4
+   métricas, no solo la lista de nodos fallidos.
 
-### Paso 5 — Barrido de tolerancia (el resultado con forma de paper)
+### Paso 5 — Barrido de tolerancia
 
-Correr Pasos 3-4 para un rango de `α` (ej. 0 a 2, en pasos finos cerca
-de donde se sospeche la transición). Buscar `α_crítico`: el punto donde
-una falla puntual deja de ser absorbida y se vuelve cascada global.
-Comparar `α_crítico` entre:
-- Variante topológica vs. variante de flujo (Paso 2).
-- Ataque aleatorio vs. dirigido (por grado, por `L_i`, por si es nodo
-  de transbordo).
-- Por capa/agencia — ¿el sistema es igual de frágil si falla primero
-  METRO que si falla primero RTP?
+**Cómo ejecutarlo:**
+1. Crear `julia/src/sweep_alpha.jl`.
+2. Loop sobre `α ∈ [0, 2]` (empezar con paso grueso 0.1, refinar cerca de
+   donde se vea la transición).
+3. Para cada `α`: correr `run_cascade()` con varios nodos semilla
+   (aleatorio y dirigido — por grado, por `L_i`, por si es nodo de
+   transbordo), promediar métricas.
+4. Exportar resultados a `data/processed/alpha_sweep.csv`
+   (`alpha, tipo_ataque, variante_carga, giant_component_ratio,
+   global_efficiency, flujo_varado, cascade_size`).
+5. Correr:
+   ```bash
+   cd julia
+   julia --project=. src/sweep_alpha.jl
+   ```
+   (esto puede tardar — es el paso computacionalmente pesado que
+   justifica estar en Julia y no en Python).
 
 ### Paso 6 — Validación de sanity antes de reportar nada
 
-- ¿El tamaño de cascada crece monótonamente al bajar `α`? (si no, algo
-  está mal en la regla de redistribución).
-- ¿Los nodos identificados como más críticos coinciden con intuición de
-  dominio? (Pantitlán, Indios Verdes deberían aparecer arriba en la
-  variante de flujo; si no aparecen, revisar antes de confiar en el
-  resultado).
+**Cómo ejecutarlo:**
+1. Cargar `alpha_sweep.csv` y graficar `cascade_size` vs. `alpha` — debe
+   ser monótona decreciente. Si no lo es, hay un bug en la redistribución
+   de carga (Paso 3), no un resultado real.
+2. Confirmar que Pantitlán/Indios Verdes aparecen entre los nodos más
+   críticos (mayor `cascade_size` promedio al fallar primero) en la
+   variante de flujo — mismo chequeo de intuición de dominio del Paso 2.
+3. Figuras finales con `CairoMakie` (`julia/src/cascade.jl` o un script
+   de figuras aparte) — reusar el theme del skill `makie-figures`.
 
 ---
 
-## Python vs. Julia en esta fase
+## Python vs. Julia en esta fase (confirmado)
 
-Aquí sí cambia el balance respecto a Fases 1-4 (que fueron 100% Python):
-
-- **Julia** para el Paso 3-5 (simulación Monte Carlo del barrido de
-  `α` — muchas repeticiones, rendimiento importa). `Graphs.jl` +
-  `MetaGraphsNext.jl` para cargar `nodes.parquet`/`edges.parquet`
-  (`Arrow.jl`/`Parquet2.jl`), figuras finales con `CairoMakie`
-  (theme de paper ya configurado en el skill `makie-figures`).
-- **Python** se queda para Pasos 0-2 (preparación de datos, ya es
-  territorio conocido) y para prototipar/validar la regla de cascada
-  en chico antes de escalarla en Julia.
+- **Python:** Paso 0 (tabla de capacidad), Paso 1 (`C_i`), Variante A del
+  Paso 2 (`L_i` topológico) — todo territorio ya conocido, pandas/networkx
+  bastan.
+- **Julia:** Variante B del Paso 2 (`π_i`, compartida con Fase 6) en
+  adelante — Pasos 3, 4, 5 son simulación Monte Carlo pesada,
+  `Graphs.jl`/`MetaGraphsNext.jl` para el grafo, `CairoMakie` para
+  figuras finales.
 
 ## Estado actual
 
-Nada iniciado — esta fase completa está pendiente. El prerrequisito
-compartido con Fase 6 (matriz de transición sesgada) es buen punto de
-partida porque desbloquea ambas fases a la vez.
+- Fase 4 consolidada y sin regresión (commit `c1d9fff`).
+- Fase 5, Paso 0: investigación de capacidades completada (TL, SUB,
+  INTERURBANO, PUMABUS), falta reconciliar con la tabla borrador
+  existente en `phase_5_guide.md` y escribir `capacity_assumptions.py`.
+- Pasos 1-6: no iniciados.
 
 ## Próximo paso sugerido
 
-Paso 0 + Paso 1 (tabla de capacidad + cálculo de `C_i`) — es la parte
-más mecánica y no depende de decisiones de diseño todavía abiertas
-(a diferencia del Paso 2, que si se hace mal sesga todo lo demás).
+Resolver la checklist previa (arriba) — en particular confirmar que las
+rutas relativas y el chequeo de overrides duplicados sobrevivieron al
+refactor de Fase 4 — antes de escribir `capacity_assumptions.py`. Un
+prerrequisito roto en silencio ahora es más caro de encontrar después de
+correr una simulación de horas en Julia.
